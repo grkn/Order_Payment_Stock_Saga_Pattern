@@ -35,9 +35,12 @@ POST http://localhost:8089/saga/v1/order
 ```
 
 Of course there are some failure cases
+
 Buy operation is dump and sometime gives error.
+
 Also stock is limited maybe you can not buy necessary amount.
 
+There are static order names : order1, order2, order3, order4, order5. Other names will give an error
 
 Database are h2 database and each database has one table.
 You can easily check status from database.

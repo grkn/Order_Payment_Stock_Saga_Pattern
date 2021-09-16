@@ -29,6 +29,7 @@ public class OrderController {
                 .name(order.getName())
                 .quantity(order.getQuantity())
                 .status(order.getStatus().name())
+                .paymentId(order.getPaymentId())
                 .build())
                 .collect(Collectors.toList()));
     }
@@ -41,6 +42,7 @@ public class OrderController {
                 .name(order.getName())
                 .quantity(order.getQuantity())
                 .status(order.getStatus().name())
+                .paymentId(order.getPaymentId())
                 .build());
     }
 

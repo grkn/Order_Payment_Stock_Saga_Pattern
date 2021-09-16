@@ -14,4 +14,5 @@ public class OrderResource {
     private String name;
     private Integer quantity;
     private String status;
+    private String paymentId;
 }

@@ -93,4 +93,10 @@ public class PaymentService {
             }
         });
     }
+
+    public Payment findById(String paymentId) {
+        return paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new IllegalArgumentException("Payment can not be found by given id"));
+
+    }
 }

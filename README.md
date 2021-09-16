@@ -16,9 +16,8 @@ Run Application.java for each services (I didn't write startup script)
 
 There is only one endpoint for creating order.
 
-POST http://localhost:8089/saga/v1/order
-
 ```
+POST http://localhost:8089/saga/v1/order
 [
     {
         "name" : "order1",
@@ -26,7 +25,7 @@ POST http://localhost:8089/saga/v1/order
     },
     {
         "name" : "order2",
-        "quantity": 9
+        "quantity": 2
     },
     {
         "name" : "order3",
@@ -34,4 +33,45 @@ POST http://localhost:8089/saga/v1/order
     }
 ]
 ```
+
+Of course there are some failure cases
+Buy operation is dump and sometime gives error.
+Also stock is limited maybe you can not buy necessary amount.
+
+
+Database are h2 database and each database has one table.
+You can easily check status from database.
+
+
+### Additional Information : 
+
+
+User sends order request to ORDER service.
+ORDER service sends 2 amqp message to PAYMENT service and STOCK service
+STOCK service sends related amqp message to ORDER service and PAYMENT service
+PAYMENT service sends success or fail to ORDER service.
+
+Statuses that are related with Order, Payment, Stock
+
+```
+ORDER_RECEIVED, ORDER_COMPLETED, ORDER_PENDING, ORDER_FAILED, ORDER_STOCK_COMPLETED
+
+PAYMENT_REQUESTED, PAYMENT_PENDING, PAYMENT_COMPLETED, PAYMENT_FAILED, PAYMENT_AVAILABLE
+
+STOCK_REQUESTED, STOCK_COMPLETED, STOCK_FAILED, STOCK_PENDING
+```
+
+Each service listens the related queue.
+
+Exchange -> sagaExchange
+
+Order service -> orderQueue -> orderDto is payload
+Payment service -> paymentQueue -> paymentDto is payload
+Stock service -> stockQueue -> stockDto is payload
+
+
+![image](https://user-images.githubusercontent.com/5938655/133602197-bf7704e6-357b-49a3-8616-38d1d37e365a.png)
+
+
+
 

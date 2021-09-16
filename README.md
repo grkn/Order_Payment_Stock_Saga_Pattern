@@ -42,10 +42,20 @@ Response :
         "transactionId": "d7c4d073-061d-4f04-8ff6-d1d0de4e1976",
         "name": "order1",
         "quantity": 4,
-        "status": "ORDER_FAILED"
+        "status": "ORDER_FAILED",
+        "paymentId": "7260a2ac-233f-441a-aa74-51a9e331afbb"
     }
 
+```
 
+```
+GET http://localhost:8088/saga/v1/payment/{paymentId}
+Response :
+    {
+        "status": "PAYMENT_COMPLETED",
+        "totalPrice": 531.0,
+        "transactionId": "506cc494-3594-46a4-8f52-780f7668513d"
+    }
 ```
 
 Of course there are some failure cases

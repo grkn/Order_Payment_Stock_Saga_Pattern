@@ -74,8 +74,11 @@ You can easily check status from database.
 
 
 User sends order request to ORDER service.
+
 ORDER service sends 2 amqp message to PAYMENT service and STOCK service
+
 STOCK service sends related amqp message to ORDER service and PAYMENT service
+
 PAYMENT service sends success or fail to ORDER service.
 
 Statuses that are related with Order, Payment, Stock

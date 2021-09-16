@@ -67,4 +67,10 @@ public class OrderService {
             orderRepository.save(order);
         }
     }
+
+    public Order findByTransactionId(String transactionId) {
+        return orderRepository.findByTransactionId(transactionId)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        String.format("Order can not be found by transactionId : %s",transactionId)));
+    }
 }

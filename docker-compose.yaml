@@ -1,0 +1,12 @@
+---
+version: '2'
+services:
+  rabbitmq:
+    image: rabbitmq:3.9.5-management
+    container_name: rabbitmq
+    expose:
+      - 5672
+      - 15672
+    ports:
+      - 5672:5672
+      - 15672:15672

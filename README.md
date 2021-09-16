@@ -18,7 +18,7 @@ There is only one endpoint for creating order.
 
 ```
 POST http://localhost:8089/saga/v1/order
-[
+body : [
     {
         "name" : "order1",
         "quantity": 2
@@ -32,6 +32,20 @@ POST http://localhost:8089/saga/v1/order
         "quantity": 1
     }
 ]
+```
+
+```
+GET http://localhost:8089/saga/v1/order/transaction/{transactionId}
+Response : 
+    
+    {
+        "transactionId": "d7c4d073-061d-4f04-8ff6-d1d0de4e1976",
+        "name": "order1",
+        "quantity": 4,
+        "status": "ORDER_FAILED"
+    }
+
+
 ```
 
 Of course there are some failure cases

@@ -11,6 +11,8 @@ import com.saga.pattern.entity.Stock;
 import com.saga.pattern.repository.StockRepository;
 import com.saga.pattern.sender.Sender;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,8 @@ import java.util.Random;
 @Service
 @RequiredArgsConstructor
 public class StockService {
+
+    private final static Logger LOGGER = LoggerFactory.getLogger(StockService.class);
 
     private final StockRepository stockRepository;
     private final Sender sender;
@@ -43,7 +47,7 @@ public class StockService {
 
     @Transactional
     public void prepareStock(StockDto stockDto) {
-        stockDto.getOrders().forEach(orderDto -> {
+        for (OrderDto orderDto : stockDto.getOrders()) {
             Optional<Stock> lStock = stockRepository.findByName(orderDto.getName());
             if (lStock.isPresent()) {
                 Stock stock = lStock.get();
@@ -53,7 +57,13 @@ public class StockService {
                     stock.setQuantity(total - requestedCount);
                     stockRepository.save(stock);
                     orderDto.setStatus(OrderStatus.ORDER_STOCK_COMPLETED.name());
-                    sendOrderStockCompletedNotification(orderDto);
+                    try {
+                        LOGGER.info("Sending ORDER_STOCK_COMPLETED notification to order queue. TransactionId: {}",
+                                stockDto.getTransactionId());
+                        sender.orderNotify(orderDto);
+                    } catch (JsonProcessingException e) {
+                        // nothing to do
+                    }
                 } else {
                     sendPaymentFailedNotification(stockDto);
                     return;
@@ -62,12 +72,12 @@ public class StockService {
                 sendPaymentFailedNotification(stockDto);
                 return;
             }
-        });
-
-        sendPaymentAvailableNotification(stockDto, PaymentStatus.PAYMENT_AVAILABLE);
+        }
+        sendPaymentNotification(stockDto, PaymentStatus.PAYMENT_AVAILABLE);
     }
 
-    private void sendPaymentAvailableNotification(StockDto stockDto, PaymentStatus status) {
+    private void sendPaymentNotification(StockDto stockDto, PaymentStatus status) {
+        LOGGER.info("Sending {} notification to payment queue. TransactionId: {}", status.name(), stockDto.getTransactionId());
         try {
             sender.paymentNotify(PaymentDto.builder()
                     .transactionId(stockDto.getTransactionId())
@@ -79,15 +89,7 @@ public class StockService {
         }
     }
 
-    private void sendOrderStockCompletedNotification(OrderDto orderDto) {
-        try {
-            sender.orderNotify(orderDto);
-        } catch (JsonProcessingException e) {
-            // nothing to do
-        }
-    }
-
     private void sendPaymentFailedNotification(StockDto stockDto) {
-        sendPaymentAvailableNotification(stockDto, PaymentStatus.PAYMENT_FAILED);
+        sendPaymentNotification(stockDto, PaymentStatus.PAYMENT_FAILED);
     }
 }

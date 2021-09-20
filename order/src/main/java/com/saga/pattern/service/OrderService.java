@@ -11,6 +11,8 @@ import com.saga.pattern.entity.Order;
 import com.saga.pattern.repository.OrderRepository;
 import com.saga.pattern.send.Sender;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,8 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class OrderService {
 
+    private final static Logger LOGGER = LoggerFactory.getLogger(OrderService.class);
+
     private final Sender sender;
     private final OrderRepository orderRepository;
 
@@ -31,6 +35,7 @@ public class OrderService {
     public List<Order> createOrder(List<Order> orders) throws JsonProcessingException {
         List<Order> lOrders = orderRepository.saveAll(orders);
         String transactionId = UUID.randomUUID().toString();
+        LOGGER.info("Sending PAYMENT_REQUESTED notification to payment queue. Transaction_id: {}", transactionId);
         sender.paymentNotify(PaymentDto.builder()
                 .transactionId(transactionId)
                 .orders(lOrders.stream()
@@ -43,6 +48,7 @@ public class OrderService {
                         .collect(Collectors.toList()))
                 .status(PaymentStatus.PAYMENT_REQUESTED.name())
                 .build());
+        LOGGER.info("Sending STOCK_REQUESTED notification to stock queue. Transaction_id: {}", transactionId);
         sender.stockNotify(StockDto.builder()
                 .orders(lOrders.stream()
                         .map(item -> OrderDto.builder()
@@ -58,7 +64,7 @@ public class OrderService {
         return lOrders;
     }
 
-    public void updateStatus(String transactionId, OrderStatus status, String paymentId) {
+    public void updateOrder(String transactionId, OrderStatus status, String paymentId) {
         Optional<Order> lOrder = orderRepository.findByTransactionId(transactionId);
         if (lOrder.isPresent()) {
             Order order = lOrder.get();
@@ -71,6 +77,6 @@ public class OrderService {
     public Order findByTransactionId(String transactionId) {
         return orderRepository.findByTransactionId(transactionId)
                 .orElseThrow(() -> new IllegalArgumentException(
-                        String.format("Order can not be found by transactionId : %s",transactionId)));
+                        String.format("Order can not be found by transactionId : %s", transactionId)));
     }
 }

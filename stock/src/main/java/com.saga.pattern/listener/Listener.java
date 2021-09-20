@@ -6,6 +6,8 @@ import com.saga.pattern.constant.StockStatus;
 import com.saga.pattern.dto.StockDto;
 import com.saga.pattern.service.StockService;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.Exchange;
 import org.springframework.amqp.rabbit.annotation.Queue;
@@ -19,6 +21,8 @@ import java.io.IOException;
 @AllArgsConstructor
 public class Listener {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Listener.class);
+
     private final ObjectMapper objectMapper;
     private final StockService stockService;
 
@@ -30,7 +34,7 @@ public class Listener {
     public void listen(Message message) throws IOException {
         StockDto stockDto = objectMapper.readValue(message.getBody(), StockDto.class);
         StockStatus stockStatus = StockStatus.valueOf(stockDto.getStatus());
-
+        LOGGER.info("Stock {} request is received. TransactionId : {}", stockStatus.name() ,stockDto.getTransactionId());
         switch (stockStatus) {
             case STOCK_PENDING:
             case STOCK_COMPLETED:

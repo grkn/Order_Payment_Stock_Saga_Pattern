@@ -6,6 +6,8 @@ import com.saga.pattern.constant.OrderStatus;
 import com.saga.pattern.dto.OrderDto;
 import com.saga.pattern.service.OrderService;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.Exchange;
 import org.springframework.amqp.rabbit.annotation.Queue;
@@ -19,6 +21,8 @@ import java.io.IOException;
 @AllArgsConstructor
 public class Listener {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Listener.class);
+
     private final ObjectMapper objectMapper;
     private final OrderService orderService;
 
@@ -31,12 +35,13 @@ public class Listener {
         OrderDto orderDto = objectMapper.readValue(message.getBody(), OrderDto.class);
         if (orderDto.getStatus() != null && !orderDto.getStatus().trim().equals("")) {
             OrderStatus orderStatus = OrderStatus.valueOf(orderDto.getStatus());
+            LOGGER.info("Order {} request is received. Transaction Id: {}", orderStatus.name(), orderDto.getTransactionId());
             switch (orderStatus) {
                 case ORDER_PENDING:
                 case ORDER_COMPLETED:
                 case ORDER_FAILED:
                 case ORDER_STOCK_COMPLETED:
-                    orderService.updateStatus(orderDto.getTransactionId(), orderStatus, orderDto.getPaymentId());
+                    orderService.updateOrder(orderDto.getTransactionId(), orderStatus, orderDto.getPaymentId());
                     break;
                 default:
                     break;

@@ -66,6 +66,7 @@ public class StockService {
                     }
                 } else {
                     sendPaymentFailedNotification(stockDto);
+                    recalculateStockValues(stockDto.getOrders());
                     sendOrderFailedNotification(stockDto.getOrders());
                     return;
                 }
@@ -76,6 +77,19 @@ public class StockService {
             }
         }
         sendPaymentNotification(stockDto, PaymentStatus.PAYMENT_AVAILABLE);
+    }
+
+    private void recalculateStockValues(List<OrderDto> orders) {
+        orders.stream().filter(orderDto -> orderDto.getStatus() != null &&
+                orderDto.getStatus().equals(OrderStatus.ORDER_STOCK_COMPLETED.name()))
+                .forEach(orderDto -> {
+                    Optional<Stock> lStock = stockRepository.findByName(orderDto.getName());
+                    lStock.ifPresent(stock -> {
+                        int quantity = orderDto.getQuantity();
+                        stock.setQuantity(stock.getQuantity() + quantity);
+                        stockRepository.save(stock);
+                    });
+                });
     }
 
     private void sendPaymentNotification(StockDto stockDto, PaymentStatus status) {

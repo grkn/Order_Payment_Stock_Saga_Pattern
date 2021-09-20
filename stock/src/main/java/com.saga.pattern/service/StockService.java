@@ -66,9 +66,11 @@ public class StockService {
                     }
                 } else {
                     sendPaymentFailedNotification(stockDto);
+                    sendOrderFailedNotification(stockDto.getOrders());
                     return;
                 }
             } else {
+                sendOrderFailedNotification(stockDto.getOrders());
                 sendPaymentFailedNotification(stockDto);
                 return;
             }
@@ -91,5 +93,16 @@ public class StockService {
 
     private void sendPaymentFailedNotification(StockDto stockDto) {
         sendPaymentNotification(stockDto, PaymentStatus.PAYMENT_FAILED);
+    }
+
+    private void sendOrderFailedNotification(List<OrderDto> orderDtos) {
+        orderDtos.forEach(item -> {
+            item.setStatus(OrderStatus.ORDER_FAILED.name());
+            try {
+                sender.orderNotify(item);
+            } catch (JsonProcessingException e) {
+                //Nothing to do for now
+            }
+        });
     }
 }

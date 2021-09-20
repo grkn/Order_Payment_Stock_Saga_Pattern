@@ -44,6 +44,7 @@ public class Listener {
                 paymentService.createPayment(paymentDto);
                 break;
             case PAYMENT_PENDING:
+            case PAYMENT_FAILED:
                 paymentService.updateStatus(paymentDto.getTransactionId(), paymentStatus);
                 break;
             case PAYMENT_AVAILABLE:

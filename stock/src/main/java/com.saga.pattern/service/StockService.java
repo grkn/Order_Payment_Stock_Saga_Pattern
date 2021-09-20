@@ -79,7 +79,7 @@ public class StockService {
         sendPaymentNotification(stockDto, PaymentStatus.PAYMENT_AVAILABLE);
     }
 
-    private void recalculateStockValues(List<OrderDto> orders) {
+    public void recalculateStockValues(List<OrderDto> orders) {
         orders.stream().filter(orderDto -> orderDto.getStatus() != null &&
                 orderDto.getStatus().equals(OrderStatus.ORDER_STOCK_COMPLETED.name()))
                 .forEach(orderDto -> {

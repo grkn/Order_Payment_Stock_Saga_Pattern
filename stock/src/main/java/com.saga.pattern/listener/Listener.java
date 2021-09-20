@@ -40,7 +40,7 @@ public class Listener {
             case STOCK_COMPLETED:
                 break;
             case STOCK_FAILED:
-                // UPDATE flow as FAILED
+                stockService.recalculateStockValues(stockDto.getOrders());
                 break;
             case STOCK_REQUESTED:
                 stockService.prepareStock(stockDto);

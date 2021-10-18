@@ -51,20 +51,25 @@ public class PaymentService {
                 lPayment.setStatus(PaymentStatus.PAYMENT_FAILED);
                 paymentRepository.save(lPayment);
                 sendOrderFailedNotification(paymentDto);
+                sendStockFailedNotification(paymentDto);
             } else {
                 sendNotificationToOrderService(paymentDto, lPayment);
             }
         } else {
             sendOrderFailedNotification(paymentDto);
-            try {
-                sender.stockNotify(StockDto.builder()
-                        .transactionId(paymentDto.getTransactionId())
-                        .orders(paymentDto.getOrders())
-                        .status(StockStatus.STOCK_FAILED.name())
-                        .build());
-            } catch (JsonProcessingException e) {
-                // Nothing to do
-            }
+            sendStockFailedNotification(paymentDto);
+        }
+    }
+
+    private void sendStockFailedNotification(PaymentDto paymentDto) {
+        try {
+            sender.stockNotify(StockDto.builder()
+                    .transactionId(paymentDto.getTransactionId())
+                    .orders(paymentDto.getOrders())
+                    .status(StockStatus.STOCK_FAILED.name())
+                    .build());
+        } catch (JsonProcessingException e) {
+            // Nothing to do
         }
     }
 

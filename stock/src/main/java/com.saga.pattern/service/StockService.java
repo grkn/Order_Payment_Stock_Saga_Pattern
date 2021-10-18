@@ -36,7 +36,7 @@ public class StockService {
     public void init() {
         stockRepository.deleteAll();
         AVAILABLE_PRODUCTS.forEach(product -> {
-            int totalQuantity = new Random().nextInt(10);
+            int totalQuantity = new Random().nextInt(20);
             stockRepository.save(Stock.builder()
                     .name(product)
                     .quantity(totalQuantity)

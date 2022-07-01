@@ -114,6 +114,9 @@ PAYMENT service sends success or fail to ORDER service.
 
 Statuses that are related with Order, Payment, Stock
 
+* Also you can send multiple order. When one them fails it automatically fails all the orders so be aware of this behaviour.
+You can modify stock's listener code for desired behaviour
+
 ```
 ORDER_RECEIVED, ORDER_COMPLETED, ORDER_PENDING, ORDER_FAILED, ORDER_STOCK_COMPLETED
 

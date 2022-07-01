@@ -69,6 +69,37 @@ There are static order names : order1, order2, order3, order4, order5. Other nam
 Database are h2 database and each database has one table.
 You can easily check status from database.
 
+Also I have added stock info endpoint for all stocks.
+
+```
+GET http://localhost:8087/saga/v1/stock
+
+Response: [
+    {
+        "name": "order1",
+        "quantity": 8
+    },
+    {
+        "name": "order2",
+        "quantity": 12
+    },
+    {
+        "name": "order3",
+        "quantity": 8
+    },
+    {
+        "name": "order4",
+        "quantity": 12
+    },
+    {
+        "name": "order5",
+        "quantity": 0
+    }
+]
+```
+
+
+I have added postman collection it is not auto configured so you can simply change it according to your needs.
 
 ### Additional Information : 
 
@@ -82,6 +113,9 @@ STOCK service sends related amqp message to ORDER service and PAYMENT service
 PAYMENT service sends success or fail to ORDER service.
 
 Statuses that are related with Order, Payment, Stock
+
+* Also you can send multiple order. When one them fails it automatically fails all the orders so be aware of this behaviour.
+You can modify stock's listener code for desired behaviour
 
 ```
 ORDER_RECEIVED, ORDER_COMPLETED, ORDER_PENDING, ORDER_FAILED, ORDER_STOCK_COMPLETED

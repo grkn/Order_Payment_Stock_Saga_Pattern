@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.event.TransactionalEventListener;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.Random;
@@ -33,40 +34,41 @@ public class OrderEventHandler {
     @TransactionalEventListener
     public void createOrdersEvent(CreateOrdersEvent createOrdersEvent) throws JsonProcessingException {
         List<Order> lOrders = createOrdersEvent.getOrders();
-        String transactionId = UUID.randomUUID().toString();
-        LOGGER.info("Sending PAYMENT_REQUESTED notification to payment queue. Transaction_id: {}", transactionId);
-        sender.paymentNotify(PaymentDto.builder()
-                .transactionId(transactionId)
-                .orders(lOrders.stream()
-                        .map(item -> OrderDto.builder()
-                                .name(item.getName())
-                                .transactionId(item.getTransactionId())
-                                .quantity(item.getQuantity())
-                                .status(OrderStatus.ORDER_PENDING.name())
-                                .price((double) new Random().nextInt(100))
-                                .build())
-                        .collect(Collectors.toList()))
-                .status(PaymentStatus.PAYMENT_REQUESTED.name())
-                .build());
-        LOGGER.info("Sending STOCK_REQUESTED notification to stock queue. Transaction_id: {}", transactionId);
-        sender.stockNotify(StockDto.builder()
-                .orders(lOrders.stream()
-                        .map(item -> OrderDto.builder()
-                                .name(item.getName())
-                                .transactionId(item.getTransactionId())
-                                .price((double) new Random().nextInt(100))
-                                .quantity(item.getQuantity())
-                                .status(OrderStatus.ORDER_PENDING.name())
-                                .build())
-                        .collect(Collectors.toList()))
-                .transactionId(transactionId)
-                .status(StockStatus.STOCK_REQUESTED.name())
-                .build());
+        if (!CollectionUtils.isEmpty(lOrders)) {
+            String transactionId = UUID.randomUUID().toString();
+            LOGGER.info("Sending PAYMENT_REQUESTED notification to payment queue. Transaction_id: {}", transactionId);
+            sender.paymentNotify(PaymentDto.builder()
+                    .transactionId(transactionId)
+                    .orders(lOrders.stream()
+                            .map(item -> OrderDto.builder()
+                                    .name(item.getName())
+                                    .transactionId(item.getTransactionId())
+                                    .quantity(item.getQuantity())
+                                    .status(OrderStatus.ORDER_PENDING.name())
+                                    .price((double) new Random().nextInt(100))
+                                    .build())
+                            .collect(Collectors.toList()))
+                    .status(PaymentStatus.PAYMENT_REQUESTED.name())
+                    .build());
+            LOGGER.info("Sending STOCK_REQUESTED notification to stock queue. Transaction_id: {}", transactionId);
+            sender.stockNotify(StockDto.builder()
+                    .orders(lOrders.stream()
+                            .map(item -> OrderDto.builder()
+                                    .name(item.getName())
+                                    .transactionId(item.getTransactionId())
+                                    .price((double) new Random().nextInt(100))
+                                    .quantity(item.getQuantity())
+                                    .status(OrderStatus.ORDER_PENDING.name())
+                                    .build())
+                            .collect(Collectors.toList()))
+                    .transactionId(transactionId)
+                    .status(StockStatus.STOCK_REQUESTED.name())
+                    .build());
 
-        lOrders.forEach(order -> {
-            order.setStatus(OrderStatus.ORDER_PENDING);
-            orderRepository.save(order);
-        });
-
+            lOrders.forEach(order -> {
+                order.setStatus(OrderStatus.ORDER_PENDING);
+                orderRepository.save(order);
+            });
+        }
     }
 }

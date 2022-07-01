@@ -96,10 +96,10 @@ Response: [
         "quantity": 0
     }
 ]
-
-
 ```
 
+
+I have added postman collection it is not auto configured so you can simply change it according to your needs.
 
 ### Additional Information : 
 

@@ -6,10 +6,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.GenericConversionService;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.util.List;
 
 @Configuration
+@EnableScheduling
 public class AppConfig {
 
     @Bean

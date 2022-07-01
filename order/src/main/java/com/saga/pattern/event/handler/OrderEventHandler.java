@@ -9,8 +9,8 @@ import com.saga.pattern.dto.PaymentDto;
 import com.saga.pattern.dto.StockDto;
 import com.saga.pattern.entity.Order;
 import com.saga.pattern.event.CreateOrdersEvent;
+import com.saga.pattern.repository.OrderRepository;
 import com.saga.pattern.send.Sender;
-import com.saga.pattern.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +28,7 @@ public class OrderEventHandler {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(OrderEventHandler.class);
     private final Sender sender;
+    private final OrderRepository orderRepository;
 
     @TransactionalEventListener
     public void createOrdersEvent(CreateOrdersEvent createOrdersEvent) throws JsonProcessingException {
@@ -61,5 +62,11 @@ public class OrderEventHandler {
                 .transactionId(transactionId)
                 .status(StockStatus.STOCK_REQUESTED.name())
                 .build());
+
+        lOrders.forEach(order -> {
+            order.setStatus(OrderStatus.ORDER_PENDING);
+            orderRepository.save(order);
+        });
+
     }
 }

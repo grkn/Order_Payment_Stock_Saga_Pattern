@@ -5,7 +5,7 @@ Saga pattern with Java => order -> payment -> stock microservices are ready to u
 
 You can see that rabbitmq is necessary for message broker.
 
-Orchestration-based saga is used for implementation.
+Choreography saga is used for implementation.
 
 ### How to run
 
